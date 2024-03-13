@@ -1,9 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from pymongo import MongoClient
 from app.models.member_group_model import MemberGroupBase, MemberGroupOutputData
 from app.services.member_group_service import MemberGroupService
 from typing import List
-import copy
 
 router = APIRouter(
     prefix="/member_groups",

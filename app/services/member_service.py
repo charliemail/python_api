@@ -1,16 +1,16 @@
 from app.mongodb import mongo_db
-from app.models.member_group_model import MemberGroupBase
+from app.models.member_model import MemberInputData, MemberUpdateData
 from bson import ObjectId
 import copy
 
-class MemberGroupService:
-    COLLECTION_NAME = 'member_groups'
+class MemberService:
+    COLLECTION_NAME = 'members'
 
     def __init__(self):
         self.collection = mongo_db.db[self.COLLECTION_NAME]
 
-    ## 取得所有 member_groups 資料
-    async def get_all_member_groups(self):
+    ## 取得所有 members 資料
+    async def get_all_members(self):
         datas = self.collection.find()
 
         response_datas = []
@@ -19,10 +19,10 @@ class MemberGroupService:
             response_datas.append(data)
         return response_datas
     
-    ## 取得單一 member_group 資料
-    async def get_member_group(self, member_group_id: str):
+    ## 取得單一 member 資料
+    async def get_member(self, member_id: str):
         try:
-            query = {"_id": ObjectId(member_group_id)}
+            query = {"_id": ObjectId(member_id)}
             datas = self.collection.find(query)
             
             datas_copy = copy.deepcopy(datas)
@@ -36,31 +36,31 @@ class MemberGroupService:
             return response_datas
         except:
             return False
-    
-    ## 新增 member_group 資料
-    async def create_member_group(self, member_group_item: MemberGroupBase):
-        member_group_item_dict = member_group_item.model_dump()
+        
+    ## 新增 member 資料
+    async def create_member(self, member_item: MemberInputData):
+        member_item_dict = member_item.model_dump()
 
-        insert_result = self.collection.insert_one(member_group_item_dict)
+        insert_result = self.collection.insert_one(member_item_dict)
         if not insert_result.acknowledged:
             return False
         return insert_result
     
-    ## 修改 member_group 資料
-    async def update_member_group(self, member_group_id: str, member_group_item: MemberGroupBase):
-        member_group_item_dict = member_group_item.model_dump()
+    ## 修改 member 資料
+    async def update_member(self, member_id: str, member_item: MemberUpdateData):
+        member_item_dict = {k: v for k, v in member_item.model_dump().items() if isinstance(v, str) and v is not None or isinstance(v, list) and v != []}
 
-        query = {"_id": ObjectId(member_group_id)}
-        neq_values = {"$set": member_group_item_dict}
-        update_result = self.collection.update_one(query, neq_values)
+        query = {"_id": ObjectId(member_id)}
+        update_values = {"$set": member_item_dict}
+        update_result = self.collection.update_one(query, update_values)
         if not update_result.acknowledged:
             return False
         return True
     
-    ## 刪除 member_group 資料
-    async def delete_member_group(self, member_group_id: str):
+    ## 刪除 member 資料
+    async def delete_member(self, member_id: str):
         try:
-            query = {"_id": ObjectId(member_group_id)}
+            query = {"_id": ObjectId(member_id)}
             result = self.collection.delete_one(query)
         
             if result.deleted_count == 1:
