@@ -1,8 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from app.models.member_model import MemberInputData, MemberOutputData, MemberUpdateData
 from app.services.member_service import MemberService
-from typing import List, Optional
-from pydantic import BaseModel
+from typing import List
 
 router = APIRouter(
     prefix="/members",
@@ -32,7 +31,7 @@ async def create_member(member_item: MemberInputData):
         raise HTTPException(status_code=500, detail="Failed to insert data into MongoDB")
     return {"message": "Data inserted successfully", "inserted_id": str(create_result.inserted_id)}
 
-# 修改(修改中)
+# 修改
 @router.put("/{member_id}")
 async def update_member(member_id: str, member_data: MemberUpdateData):
     update_result = await member_service.update_member(member_id, member_data)
@@ -47,3 +46,9 @@ async def delete_member(member_id: str):
     if not delete_result:
         raise HTTPException(status_code=500, detail="Failed to delete data")
     return {"message": "Data deleted successfully", "deleted_id": member_id}
+
+# 相同群組之會員
+@router.get("/group/{member_group_name}", response_model=List[MemberOutputData])
+async def same_group_member(member_group_name: str):
+    result = await member_service.get_same_group_member(member_group_name)
+    return result
