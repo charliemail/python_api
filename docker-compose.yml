@@ -1,14 +1,17 @@
 version: '3'
 services:
-  web:
+  app:
     build: .
     ports:
       - "8000:8000"
     volumes:
       - .:/python_api
     depends_on:
-      - db
-  db:
+      - mongodb
+  mongodb:
     image: mongo:latest
     ports:
       - "27017:27017"
+    environment:
+      MONGO_URI: ${MONGO_URI}
+      MONGO_DB_NAME: ${MONGO_DB_NAME}
