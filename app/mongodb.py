@@ -12,4 +12,16 @@ class MongoDB:
         self.client = MongoClient(mongo_uri)
         self.db = self.client[mongo_db]
 
-mongo_db = MongoDB()
+def main():
+    client = MongoClient()
+
+    try:        
+        client.admin.command('ping')
+        print("MongoDB is connected!")
+    except Exception as e:
+        print("Failed to connect to MongoDB: ", e)
+
+if __name__ == '__main__':
+    main()
+else:
+    mongo_db = MongoDB()
